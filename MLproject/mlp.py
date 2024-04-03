@@ -19,26 +19,25 @@ test_dataset = datasets.USPS(root='./data', train=False, download=True, transfor
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
-# Step 2: Define CNN Model
-class CNN(nn.Module):
+# Step 2: Define mlp Model
+class MLP(nn.Module):
     def __init__(self):
-        super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(64 * 7 * 7, 128)
-        self.fc2 = nn.Linear(128, 10)
+        super(MLP, self).__init__()
+        # Define your MLP architecture here
+        self.fc1 = nn.Linear(28 * 28, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 10)
 
     def forward(self, x):
-        x = self.pool(torch.relu(self.conv1(x)))
-        x = self.pool(torch.relu(self.conv2(x)))
-        x = x.view(-1, 64 * 7 * 7)
+        x = x.view(-1, 28 * 28)
         x = torch.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
 
 # Step 3: Define Loss Function, Optimizer, and TensorBoard writer
-model = CNN()
+model = MLP()
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 writer = SummaryWriter('./logs/cnn_usps')
@@ -112,6 +111,7 @@ for epoch in range(num_epochs):
 
 # Step 7: Close TensorBoard writer
 writer.close()
+
 # Step 2: Load TensorBoard Extension
 %load_ext tensorboard
 
